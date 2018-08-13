@@ -28,7 +28,6 @@ import { WorkerCallback } from '../utils/types';
 
 type IntrospectionProvider = (query: string) => Promise<any>;
 
-
 export interface VoyagerDisplayOptions {
   rootType?: string;
   skipRelay?: boolean;

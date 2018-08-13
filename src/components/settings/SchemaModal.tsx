@@ -97,7 +97,9 @@ class SchemaModal extends React.Component<SchemaModalProps, SchemaModalState> {
   }
 
   handleChange() {
-    const { notApplied: { activePreset, displayOptions, presetValue } } = this.props;
+    const {
+      notApplied: { activePreset, displayOptions, presetValue },
+    } = this.props;
 
     let schema = activePreset === 'custom' ? JSON.parse(presetValue) : presetValue;
     this.props.dispatch(changeActivePreset(activePreset));
