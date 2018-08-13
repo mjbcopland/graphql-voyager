@@ -128,7 +128,7 @@ export default class Voyager extends React.Component<VoyagerProps> {
     return (
       <Provider store={this.store}>
         <div className="graphql-voyager">
-          {!hideDocs && <DocPanel _showChangeButton={!!_schemaPresets} />}
+          {!hideDocs && <DocPanel _showChangeButton={!!_schemaPresets} _showDownloadButton />}
           <div ref="viewport" className="viewport" />
           <ErrorBar />
           <LoadingAnimation />

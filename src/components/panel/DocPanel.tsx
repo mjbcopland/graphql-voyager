@@ -8,15 +8,19 @@ import TypeInfoPopover from './TypeInfoPopover';
 
 interface DocPanelProps {
   _showChangeButton?: boolean;
+  _showDownloadButton?: boolean;
 }
 export default class DocPanel extends React.Component<DocPanelProps> {
   render() {
-    let { _showChangeButton } = this.props;
+    let { _showChangeButton, _showDownloadButton } = this.props;
 
     return (
       <div className="doc-panel">
         <div className="contents">
-          <TitleArea _showChangeButton={_showChangeButton} />
+          <TitleArea
+            _showChangeButton={_showChangeButton}
+            _showDownloadButton={_showDownloadButton}
+          />
           <TypeDoc />
         </div>
         <TypeInfoPopover />

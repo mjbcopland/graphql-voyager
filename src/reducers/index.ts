@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import FileSaver from 'file-saver';
 
 import * as ActionTypes from '../actions/';
 
@@ -117,6 +118,11 @@ export function rootReducer(previousState = initialState, action) {
         ]),
         currentSvgIndex: previousState.svgCache.length,
       };
+    case ActionTypes.DOWNLOAD_SVG:
+      const { svgCache, currentSvgIndex } = previousState;
+      const { svg } = svgCache[currentSvgIndex];
+      FileSaver.saveAs(new Blob([svg], { type: 'image/svg+xml' }), 'schema.svg');
+      return previousState;
     case ActionTypes.SELECT_NODE:
       const currentNodeId = action.payload;
       if (currentNodeId === previousState.selected.currentNodeId) return previousState;
