@@ -22,10 +22,7 @@ module.exports = function() {
       'react':'React',
       'react-dom': 'ReactDOM'
     },
-    entry: IS_PRODUCTION ? {
-      'index': ['./src/vendor.ts', './src/index.tsx'],
-      'presets': ['./src/presets.ts']
-    } : ['./src/presets.ts', './src/vendor.ts', './src/index.tsx'],
+    entry: ['./src/presets.ts', './src/vendor.ts', './src/index.tsx'],
     devServer: {
       contentBase: root('demo'),
       watchContentBase: true,
@@ -109,7 +106,12 @@ module.exports = function() {
           {
             loader: 'babel-loader',
             options: {
-              plugins: ['transform-es2015-classes', 'transform-es2015-block-scoping']
+              plugins: [
+                'transform-es2015-classes',
+                'transform-es2015-block-scoping',
+                'transform-es2015-arrow-functions',
+                'transform-es2015-destructuring'
+              ]
             }
           },
           {
@@ -142,6 +144,7 @@ module.exports = function() {
       }),
 
       new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         'VERSION': VERSION,
         'DEBUG': !IS_PRODUCTION,
         'DEBUG_INITIAL_PRESET': IS_PRODUCTION ? 'false': '"Star Wars"'

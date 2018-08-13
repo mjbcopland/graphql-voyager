@@ -1,38 +1,44 @@
-import { getDotSelector } from './dot'
-import { store, observeStore } from '../redux';
+import { getDotSelector } from './dot';
+import { observeStore } from '../redux';
 import { svgRenderingFinished, reportError } from '../actions';
 
-import { monkeyPatchWorker } from './worker.monkeypatch';
+import { loadWorker as defaultLoadWorker } from '../utils/';
+import { WorkerCallback } from '../utils/types';
 
-monkeyPatchWorker();
-const VizWorker = require('./viz-worker.worker');
+// just reference it to to trigger worker loader
+require('./viz-worker.worker');
 
 export class SVGRender {
   worker: Worker;
+  unsubscribe: any;
 
-  constructor() {
-    this.worker = new VizWorker();
+  constructor(public store, workerURI?: string, loadWorker: WorkerCallback = defaultLoadWorker) {
+    loadWorker(workerURI || 'voyager.worker.js', !workerURI).then(worker => {
+      this.worker = worker;
 
-    observeStore(
-      state => state.currentSvgIndex,
-      getDotSelector,
-      (currentSvgIndex, dot) => {
-        if (currentSvgIndex === null && dot !== null)
-          this._renderSvg(dot);
-      }
-    );
+      this.unsubscribe = observeStore(
+        store,
+        state => state.currentSvgIndex,
+        getDotSelector,
+        (currentSvgIndex, dot) => {
+          if (currentSvgIndex === null && dot !== null) this._renderSvg(dot);
+        },
+      );
+    });
+  }
+
+  destroy() {
+    this.unsubscribe();
   }
 
   _renderSvg(dot) {
     let cb = event => {
       let data = event.data;
-      if (data.result === 'success')
-        store.dispatch(svgRenderingFinished(data.svgString));
-      else
-        store.dispatch(reportError(data.msg));
+      if (data.result === 'success') this.store.dispatch(svgRenderingFinished(data.svgString));
+      else this.store.dispatch(reportError(data.msg));
       this.worker.removeEventListener('message', cb);
-    }
-    this.worker.postMessage({dot});
+    };
+    this.worker.postMessage({ dot });
     this.worker.addEventListener('message', cb);
   }
-};
+}

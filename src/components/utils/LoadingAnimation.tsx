@@ -12,11 +12,11 @@ interface LoadingAnimationProps {
 
 function mapStateToProps(state) {
   return {
-    loading: (state.currentSvgIndex === null)
+    loading: state.currentSvgIndex === null,
   };
 }
 
-class LoadingAnimation extends React.Component<LoadingAnimationProps, void> {
+class LoadingAnimation extends React.Component<LoadingAnimationProps> {
   shouldComponentUpdate(nextProps) {
     return this.props.loading !== nextProps.loading;
   }
@@ -24,11 +24,13 @@ class LoadingAnimation extends React.Component<LoadingAnimationProps, void> {
   render() {
     const loading = this.props.loading;
     return (
-      <div className={classNames({
-        'loading-box': true,
-        'visible': loading
-      })}>
-        <span className='loading-animation'>
+      <div
+        className={classNames({
+          'loading-box': true,
+          visible: loading,
+        })}
+      >
+        <span className="loading-animation">
           <VoyagerIcon />
           <h1> Transmitting... </h1>
         </span>

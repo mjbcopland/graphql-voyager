@@ -6,6 +6,13 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const root = require('./helpers').root;
 const VERSION = JSON.stringify(require('../package.json').version);
 
+const BANNER =
+`GraphQL Voyager - Represent any GraphQL API as an interactive graph
+-------------------------------------------------------------
+  Version: ${VERSION}
+  Repo: https://github.com/APIs-guru/graphql-voyager`;
+
+
 let baseConfig = {
   devtool: 'cheap-source-map',
 
@@ -105,7 +112,7 @@ let baseConfig = {
     },
     {
       test: /\.ejs$/,
-      loader: 'ejs-compiled-loader'
+      loader: 'ejs-compiled-loader?strict=true'
     },
     {
       test: /\.svg$/,
@@ -113,7 +120,12 @@ let baseConfig = {
         {
           loader: 'babel-loader',
           options: {
-            plugins: ['transform-es2015-classes', 'transform-es2015-block-scoping']
+            plugins: [
+              'transform-es2015-classes',
+              'transform-es2015-block-scoping',
+              'transform-es2015-arrow-functions',
+              'transform-es2015-destructuring'
+            ]
           }
         },
         {
@@ -136,6 +148,7 @@ let baseConfig = {
     }),
 
     new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       'VERSION': VERSION,
       'DEBUG': false,
       'DEBUG_INITIAL_PRESET': false
@@ -144,7 +157,8 @@ let baseConfig = {
     new ExtractTextPlugin({
       filename: 'voyager.css',
       allChunks: true
-    })
+    }),
+    new webpack.BannerPlugin(BANNER)
   ],
   node: {
     console: false,
@@ -181,4 +195,47 @@ minConfig.plugins.push(new webpack.optimize.UglifyJsPlugin({
   sourceMap: true
 }));
 
-module.exports = [baseConfig, minConfig];
+let libConfig = Object.assign({}, baseConfig);
+libConfig.externals = {
+  react: {
+    root: 'React',
+    commonjs2: 'react',
+    commonjs: 'react',
+    amd: 'react'
+  },
+  'react-dom': {
+    root: 'ReactDOM',
+    commonjs2: 'react-dom',
+    commonjs: 'react-dom',
+    amd: 'react-dom'
+  },
+  lodash : {
+    commonjs: "lodash",
+    commonjs2: 'lodash',
+    amd: "lodash",
+    root: "_"
+  },
+  graphql: 'graphql',
+  "@f/animate": "@f/animate",
+  "classnames": "classnames",
+  "clipboard": "clipboard",
+  "marked": "marked",
+  "react-modal": "react-modal",
+  "react-redux": "react-redux",
+  "redux": "redux",
+  "redux-thunk": "redux-thunk",
+  "reselect": "reselect",
+  "svg-pan-zoom": "svg-pan-zoom"
+}
+
+libConfig.output = {
+  path: root('dist'),
+  filename: '[name].lib.js',
+  sourceMapFilename: '[file].map',
+  library: 'GraphQLVoyager',
+  libraryTarget: 'umd',
+  umdNamedDefine: true
+};
+
+
+module.exports = [baseConfig, minConfig, libConfig];
